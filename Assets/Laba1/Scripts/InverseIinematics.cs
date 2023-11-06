@@ -5,48 +5,73 @@ using UnityEngine;
 
 public class InverseIinematics : MonoBehaviour
 {
+    [SerializeField] private float _sampling = 359f;
+    [SerializeField] private float _rate = 2000f;
+    [SerializeField] private float _distanceThreshold = 0.01f;
     [SerializeField] private Transform _target;
-    [SerializeField] private Transform _FKTarget;
+    [SerializeField] private Transform _fkTarget;
     [SerializeField] private Joint[] _joints;
 
-    [SerializeField] private Vector3 _targetPosition;
-    [SerializeField] private Vector3 _forwardKinematicPosition;
+    private float[] _angles;
 
     private void Start()
     {
-        // Apply some angles for an example
-        _joints[0].transform.localEulerAngles = new Vector3(-27f, 0, 0);
-        _joints[1].transform.localEulerAngles = new Vector3(-18f, 0, 0);
-        _joints[2].transform.localEulerAngles = new Vector3(25f, 0, 0);
-        _joints[3].transform.localEulerAngles = new Vector3(-53f, 0, 0);
-        _joints[4].transform.localEulerAngles = new Vector3(0f, 0, 0);
+        _angles = new float[_joints.Length];
     }
 
     private void Update()
     {
-        _targetPosition = _target.position;
-
-        _forwardKinematicPosition = getForwardKinematicPosition(new float[]
-        {
-           _joints[0].transform.localEulerAngles.x,
-           _joints[1].transform.localEulerAngles.x,
-           _joints[2].transform.localEulerAngles.x,
-           _joints[3].transform.localEulerAngles.x,
-           _joints[4].transform.localEulerAngles.x,
-        });
-
-        _FKTarget.position = _forwardKinematicPosition;
+        ProcessInverseKinematic();
+        _fkTarget.position = CalculateForwardKinematicPosition();
+        ApplyAngles();
     }
 
-    private Vector3 getForwardKinematicPosition(float[] angles)
+    private void ProcessInverseKinematic()
+    {
+        for (int i = 0; i < _angles.Length; i++)
+        {
+            float angle = _angles[i];
+
+            float f = GetTargetApproximation();
+
+            // Terminate prematurely if the target is reached
+            if (f <= _distanceThreshold) {
+                //return;
+            }
+
+            _angles[i] += _sampling;
+            float fd = GetTargetApproximation();
+            float gradient = (f - fd) / _sampling;
+
+            _angles[i] = angle - _rate * gradient;
+        }
+
+    }
+
+    private Vector3 CalculateForwardKinematicPosition()
     {
         Vector3 result = _joints[0].transform.position;
         Quaternion rotation = Quaternion.identity;
         for (int i = 1; i < _joints.Length; i++)
         {
-            rotation *= Quaternion.AngleAxis(angles[i - 1], _joints[i - 1].RotationAxis);
+            rotation *= Quaternion.AngleAxis(_angles[i - 1], _joints[i - 1].RotationAxis);
             result += rotation * _joints[i].transform.localPosition;
         }
         return result;
     }
+
+    private float GetTargetApproximation()
+    {
+        Vector3 point = CalculateForwardKinematicPosition();
+        return Vector3.Distance(point, _target.transform.position);
+    }
+
+    private void ApplyAngles()
+    {
+        for (int i = 0; i < _joints.Length; i++)
+        {
+            _joints[i].Angle = _angles[i];
+        }
+    }
+
 }
