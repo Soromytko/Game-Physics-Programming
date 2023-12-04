@@ -4,15 +4,8 @@ using UnityEngine;
 
 public class View : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public void OnSimulationSpeedChanged(float value)
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        CosmosConfig.SimulationSpeed = value;
     }
 }

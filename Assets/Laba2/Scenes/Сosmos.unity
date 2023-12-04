@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: f5ba23332fe60d6478db94ed6214ca85, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
+  m_IndirectSpecularColor: {r: 0.0025766408, g: 0.013924482, b: 0.028974026, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -281,12 +281,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0d9855cbdfa98d4fad415dfa7ca1ad0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _hoursPerDay: 24
-  _daysPerYear: 365
   _mass: 0.815
   _radius: 0.95
   _distanceToSun: 0.723
-  _velocity: {x: 0, y: 0, z: 0}
+  _daysPerYear: 225
+  _deviation: {x: 1, y: 1}
+  _currentAngle: 0
 --- !u!135 &206673386
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -476,12 +476,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0d9855cbdfa98d4fad415dfa7ca1ad0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _hoursPerDay: 24
-  _daysPerYear: 365
   _mass: 333000
   _radius: 10.9
   _distanceToSun: 0
-  _velocity: {x: 0, y: 0, z: 0}
+  _daysPerYear: 1
+  _deviation: {x: 1, y: 1}
+  _currentAngle: 0
 --- !u!1 &648494353
 GameObject:
   m_ObjectHideFlags: 0
@@ -567,12 +567,24 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1632355034}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 5
+  m_MaxValue: 100
   m_WholeNumbers: 0
-  m_Value: 1
+  m_Value: 20
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 662450686}
+        m_TargetAssemblyTypeName: View, Assembly-CSharp
+        m_MethodName: OnSimulationSpeedChanged
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &662450685
 GameObject:
   m_ObjectHideFlags: 0
@@ -586,6 +598,7 @@ GameObject:
   - component: {fileID: 662450688}
   - component: {fileID: 662450687}
   - component: {fileID: 662450686}
+  - component: {fileID: 662450691}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -688,6 +701,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &662450691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 662450685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d566f45d523ab0b41ba73cb652933059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &815961224
 GameObject:
   m_ObjectHideFlags: 0
@@ -724,7 +749,7 @@ Camera:
   m_GameObject: {fileID: 815961224}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -848,6 +873,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 169638f1bbedd5e4fbd5d3d50fa370c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _simulationSpeed: 1
   _astronomicalUnit: 35.6
   _earthRadius: 1
   _planets:
@@ -1155,12 +1181,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0d9855cbdfa98d4fad415dfa7ca1ad0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _hoursPerDay: 24
-  _daysPerYear: 365
   _mass: 1
   _radius: 1
   _distanceToSun: 1
-  _velocity: {x: 0, y: 0, z: 0}
+  _daysPerYear: 365
+  _deviation: {x: 1, y: 1}
+  _currentAngle: 0
 --- !u!1 &1480222840
 GameObject:
   m_ObjectHideFlags: 0
@@ -1208,12 +1234,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0d9855cbdfa98d4fad415dfa7ca1ad0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _hoursPerDay: 24
-  _daysPerYear: 365
   _mass: 0.107
   _radius: 0.531
   _distanceToSun: 1.52
-  _velocity: {x: 0, y: 0, z: 0}
+  _daysPerYear: 687
+  _deviation: {x: 1, y: 1}
+  _currentAngle: 0
 --- !u!135 &1480222843
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1392,12 +1418,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0d9855cbdfa98d4fad415dfa7ca1ad0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _hoursPerDay: 24
-  _daysPerYear: 365
   _mass: 0.055
   _radius: 0.38
   _distanceToSun: 0.3
-  _velocity: {x: 0, y: 0, z: 0}
+  _daysPerYear: 58.6
+  _deviation: {x: 1, y: 1}
+  _currentAngle: 0
 --- !u!135 &1815448721
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1508,14 +1534,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1918655658}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a6d32fefe3442ef4f8e7f45a48dbc711, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  time: 1
   _bodies: []
-  earth: {fileID: 1304074608}
-  apple: {fileID: 1815448720}
+  earth: {fileID: 311923133}
+  apple: {fileID: 1304074608}
 --- !u!4 &1918655660
 Transform:
   m_ObjectHideFlags: 0
@@ -1657,12 +1684,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0d9855cbdfa98d4fad415dfa7ca1ad0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _hoursPerDay: 24
-  _daysPerYear: 365
   _mass: 317.8
   _radius: 11.2
   _distanceToSun: 5.2
-  _velocity: {x: 0, y: 0, z: 0}
+  _daysPerYear: 4333
+  _deviation: {x: 1, y: 1}
+  _currentAngle: 0
 --- !u!135 &2016842788
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1781,12 +1808,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0d9855cbdfa98d4fad415dfa7ca1ad0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _hoursPerDay: 24
-  _daysPerYear: 365
   _mass: 14
   _radius: 4
   _distanceToSun: 19.1914
-  _velocity: {x: 0, y: 0, z: 0}
+  _daysPerYear: 30687
+  _deviation: {x: 1, y: 1}
+  _currentAngle: 0
 --- !u!135 &2070611461
 SphereCollider:
   m_ObjectHideFlags: 0
