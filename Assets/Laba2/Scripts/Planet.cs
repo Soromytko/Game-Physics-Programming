@@ -4,65 +4,53 @@ using UnityEngine;
 
 public class Planet : MonoBehaviour
 {
-    public Vector3 Velocity
-    {
-        get => _velocity;
-        set => _velocity = value;
-    }
     public float Mass
     {
         get => _mass;
         set => _mass = value;
     }
-
-    public Vector3 AstronomicalUnitPosition
-    {
-        get => transform.position;
-        set => transform.position = value;
-    }
-
     public float Radius
     {
         get => _radius;
         set => _radius = value;
     }
-
     public float DistanceToSun
     {
         get => _distanceToSun;
         set => _distanceToSun = value;
     }
+    public float DaysPerYear
+    {
+        get => _daysPerYear;
+        set => _daysPerYear = value;
+    }
+    public Vector2 Deviation
+    {
+        get => _deviation;
+        set => _deviation = value;
+    }
 
-    [SerializeField] private float _hoursPerDay = 24f;
-    [SerializeField] private float _daysPerYear = 365f;
     [Tooltip("In earth mass")]
     [SerializeField] private float _mass = 1f;
     [Tooltip("In earth radii")]
     [SerializeField] private float _radius = 1f;
     [Tooltip("In astronomical units")]
     [SerializeField] private float _distanceToSun = 1f;
+    [SerializeField] private float _daysPerYear = 365f;
+    [SerializeField] private Vector2 _deviation = new Vector2(1, 1);
+    [SerializeField] private float _currentAngle = 0f;
 
-    [SerializeField] private Vector3 _velocity;
-
-
-    public void Move(Vector3 force)
+    public void Update()
     {
-        Vector3 velocity = _velocity + force;
-        transform.position += _velocity;
-    }
+        float baseSimulationSpeed = CosmosConfig.SimulationSpeed * Time.deltaTime * 1000f;
+        _currentAngle += baseSimulationSpeed / _daysPerYear;
+        _currentAngle += _currentAngle < 0f ? 360f : _currentAngle >= 360 ? -360f : 0;
+        float angleRad = Mathf.Deg2Rad * _currentAngle;
 
-    private void Start()
-    {
-        
+        float distance = _distanceToSun * (float)CosmosConfig.AstronomicalUnit;
+        float x = Mathf.Cos(angleRad) * _deviation.x;
+        float z = Mathf.Sin(angleRad) * _deviation.y;
+        transform.localPosition = new Vector3(x, 0, z) * distance;
     }
-
-    private void Update()
-    {
-
-    }
-
-    private void LateUpdate()
-    {
-        transform.position += _velocity * Time.deltaTime;
-    }
+   
 }

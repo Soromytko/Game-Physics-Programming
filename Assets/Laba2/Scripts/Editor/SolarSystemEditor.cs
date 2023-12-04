@@ -10,6 +10,9 @@ public class SolarSystemEditor : Editor
     {
         SolarSystem targetScriptObject = (SolarSystem)target;
 
+        targetScriptObject.SimulationSpeed = EditorGUILayout.FloatField("SimulationSpeed", targetScriptObject.SimulationSpeed);
+
+
         EditorGUI.BeginChangeCheck();
         targetScriptObject.AstronomicalUnit = EditorGUILayout.FloatField("AstronomicalUnit", targetScriptObject.AstronomicalUnit);
         targetScriptObject.EarthRadius = EditorGUILayout.FloatField("EarthRadius", targetScriptObject.EarthRadius);

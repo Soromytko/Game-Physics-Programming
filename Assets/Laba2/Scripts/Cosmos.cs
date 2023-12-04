@@ -28,10 +28,6 @@ public class Cosmos : MonoBehaviour
     private void Test()
     {
         double g = GetFreeFallAcceleration(earth, apple);
-
-        Vector3 direction = (earth.transform.position - apple.transform.position).normalized;
-        apple.Velocity = direction * (float)g;
-        print("GGG " +  (float)g);
     }
 
     private void Update()
@@ -48,11 +44,6 @@ public class Cosmos : MonoBehaviour
                 {
                     continue;
                 }
-
-                double g = GetFreeFallAcceleration(body1, body2);
-                Vector3 direction = (body1.transform.position - body2.transform.position).normalized;
-                //body2.Move(direction * (float)(g * Time.deltaTime));
-                body2.Velocity += direction * (float)g;
             }
         }
     }
