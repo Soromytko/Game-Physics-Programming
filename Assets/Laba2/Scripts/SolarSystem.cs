@@ -39,7 +39,7 @@ public class SolarSystem : MonoBehaviour
         FindObjectOfType<Cosmos>().AstronomicalUnit = AstronomicalUnit;
     }
 
-    private void Start()
+    private void Awake()
     {
         UpdatePlanets();
     }

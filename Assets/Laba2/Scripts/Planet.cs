@@ -39,6 +39,20 @@ public class Planet : MonoBehaviour
     [SerializeField] private float _daysPerYear = 365f;
     [SerializeField] private Vector2 _deviation = new Vector2(1, 1);
     [SerializeField] private float _currentAngle = 0f;
+    [SerializeField] private LineRenderer _lineRenderer;
+    [SerializeField] private int _orbitSmoothness = 2;
+    [SerializeField] private float _orbitThickness = 1f;
+
+    private void Start()
+    {
+        if (_lineRenderer)
+        {
+            float distance = _distanceToSun * (float)CosmosConfig.AstronomicalUnit;
+            int stepCount = (int)(distance) * _orbitSmoothness;
+            print(CosmosConfig.AstronomicalUnit);
+            DrawOrbit(stepCount, _distanceToSun * (float)CosmosConfig.AstronomicalUnit);
+        }
+    }
 
     public void Update()
     {
@@ -51,6 +65,41 @@ public class Planet : MonoBehaviour
         float x = Mathf.Cos(angleRad) * _deviation.x;
         float z = Mathf.Sin(angleRad) * _deviation.y;
         transform.localPosition = new Vector3(x, 0, z) * distance;
+
+        if (_lineRenderer)
+        {
+            UpdateOrbitThickness();
+        }
+    }
+
+    private void DrawOrbit(int stepCount, float radius)
+    {
+        _lineRenderer.positionCount = stepCount;
+
+        for (int currentStep = 0; currentStep < stepCount; currentStep++) {
+            float progress = currentStep / (float)stepCount;
+            float angleRad = progress * Mathf.PI * 2f;
+            
+            float x = Mathf.Cos(angleRad) * radius;
+            float z = Mathf.Sin(angleRad) * radius;
+
+            Vector3 point = new Vector3(x, 0, z);
+
+            _lineRenderer.SetPosition(currentStep, point);
+        }
+    }
+
+    private void UpdateOrbitThickness()
+    {
+        Vector3 cameraPosition = Camera.main.transform.position;
+        Vector3 parentPosition = transform.parent != null ? transform.parent.position : transform.position;
+
+        float distanceToSun = _distanceToSun * (float)CosmosConfig.AstronomicalUnit;
+        float distanceToCamera = Vector3.Distance(cameraPosition, parentPosition);
+        float distance = Mathf.Abs(distanceToCamera - distanceToSun);
+        float width = distance / 100f * _orbitThickness;
+        
+        _lineRenderer.SetWidth(width, width);
     }
    
 }
