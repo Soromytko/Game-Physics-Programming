@@ -49,7 +49,6 @@ public class Planet : MonoBehaviour
         {
             float distance = _distanceToSun * (float)CosmosConfig.AstronomicalUnit;
             int stepCount = (int)(distance) * _orbitSmoothness;
-            print(CosmosConfig.AstronomicalUnit);
             DrawOrbit(stepCount, _distanceToSun * (float)CosmosConfig.AstronomicalUnit);
         }
     }
@@ -72,7 +71,7 @@ public class Planet : MonoBehaviour
         }
     }
 
-    private void DrawOrbit(int stepCount, float radius)
+    private void DrawOrbit(int stepCount, float distance)
     {
         _lineRenderer.positionCount = stepCount;
 
@@ -80,10 +79,10 @@ public class Planet : MonoBehaviour
             float progress = currentStep / (float)stepCount;
             float angleRad = progress * Mathf.PI * 2f;
             
-            float x = Mathf.Cos(angleRad) * radius;
-            float z = Mathf.Sin(angleRad) * radius;
+            float x = Mathf.Cos(angleRad) * Deviation.x;
+            float z = Mathf.Sin(angleRad) * Deviation.y;
 
-            Vector3 point = new Vector3(x, 0, z);
+            Vector3 point = new Vector3(x, 0, z) * distance;
 
             _lineRenderer.SetPosition(currentStep, point);
         }
