@@ -2,13 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Planet : MonoBehaviour
+public class Planet : CosmicBody
 {
-    public float Mass
-    {
-        get => _mass;
-        set => _mass = value;
-    }
     public float Radius
     {
         get => _radius;
@@ -30,8 +25,6 @@ public class Planet : MonoBehaviour
         set => _deviation = value;
     }
 
-    [Tooltip("In earth mass")]
-    [SerializeField] private float _mass = 1f;
     [Tooltip("In earth radii")]
     [SerializeField] private float _radius = 1f;
     [Tooltip("In astronomical units")]
@@ -47,20 +40,20 @@ public class Planet : MonoBehaviour
     {
         if (_lineRenderer)
         {
-            float distance = _distanceToSun * (float)CosmosConfig.AstronomicalUnit;
+            float distance = _distanceToSun * CosmosConfig.DistanceToSun;
             int stepCount = (int)(distance) * _orbitSmoothness;
-            DrawOrbit(stepCount, _distanceToSun * (float)CosmosConfig.AstronomicalUnit);
+            DrawOrbit(stepCount, distance);
         }
     }
 
-    public void Update()
+    public void FixedUpdate()
     {
-        float baseSimulationSpeed = CosmosConfig.SimulationSpeed * Time.deltaTime * 1000f;
+        float baseSimulationSpeed = CosmosConfig.SimulationSpeed * Time.fixedDeltaTime * CosmosConfig.SimulationSpeedMultiplier;
         _currentAngle += baseSimulationSpeed / _daysPerYear;
         _currentAngle += _currentAngle < 0f ? 360f : _currentAngle >= 360 ? -360f : 0;
         float angleRad = Mathf.Deg2Rad * _currentAngle;
 
-        float distance = _distanceToSun * (float)CosmosConfig.AstronomicalUnit;
+        float distance = _distanceToSun * CosmosConfig.DistanceToSun;
         float x = Mathf.Cos(angleRad) * _deviation.x;
         float z = Mathf.Sin(angleRad) * _deviation.y;
         transform.localPosition = new Vector3(x, 0, z) * distance;
@@ -93,9 +86,8 @@ public class Planet : MonoBehaviour
         Vector3 cameraPosition = Camera.main.transform.position;
         Vector3 parentPosition = transform.parent != null ? transform.parent.position : transform.position;
 
-        float distanceToSun = _distanceToSun * (float)CosmosConfig.AstronomicalUnit;
         float distanceToCamera = Vector3.Distance(cameraPosition, parentPosition);
-        float distance = Mathf.Abs(distanceToCamera - distanceToSun);
+        float distance = Mathf.Abs(distanceToCamera - _distanceToSun);
         float width = distance / 100f * _orbitThickness;
         
         _lineRenderer.SetWidth(width, width);

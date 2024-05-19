@@ -14,7 +14,6 @@ public class SolarSystemEditor : Editor
 
 
         EditorGUI.BeginChangeCheck();
-        targetScriptObject.AstronomicalUnit = EditorGUILayout.FloatField("AstronomicalUnit", targetScriptObject.AstronomicalUnit);
         targetScriptObject.EarthRadius = EditorGUILayout.FloatField("EarthRadius", targetScriptObject.EarthRadius);
         if (EditorGUI.EndChangeCheck())
         {
