@@ -9,6 +9,7 @@ public class FreeCamera : MonoBehaviour
     [SerializeField] private float _deceleration = 0.5f;
     [SerializeField] private float _acceleration = 5f;
 
+[SerializeField]
     private Vector2 _currentAngles;
 
     private void Start()
@@ -28,9 +29,8 @@ public class FreeCamera : MonoBehaviour
         _currentAngles.x += Input.GetAxis("Mouse X") * _sensitivity * Time.deltaTime;
         _currentAngles.y -= Input.GetAxis("Mouse Y") * _sensitivity * Time.deltaTime;
 
-        _currentAngles.x += _currentAngles.x < 0f ? 360f : -360f;
+        _currentAngles.x += _currentAngles.x < 0f ? 360f : _currentAngles.x > 360f ? -360f : 0;
         _currentAngles.y = Mathf.Clamp(_currentAngles.y, -90f, 90f);
-
 
         transform.localEulerAngles = new Vector3(_currentAngles.y, _currentAngles.x, 0);
     }
