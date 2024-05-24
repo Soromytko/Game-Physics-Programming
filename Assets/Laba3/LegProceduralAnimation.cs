@@ -5,88 +5,77 @@ using UnityEngine;
 public class LegProceduralAnimation : MonoBehaviour
 {
     [SerializeField] private Transform _target;
-    [SerializeField] private float _stepDistance = 1f;
     // [SerializeField] private Transform Pole;
-    [SerializeField] private Vector3 _oldPosition
+    [SerializeField] private Transform _rayOrigin;
+    [SerializeField] private float _speed = 1f;
+    [SerializeField] private float _stepDistance = 1f;
+    [SerializeField] private float _stepHeight = 1f;
+    [SerializeField] private Vector3 _oldPosition;
+    [SerializeField] private Vector3 _currentPosition;
     [SerializeField] private Vector3 _newPosition;
 
     private float _lerp;
-    public float Angle;
 
     private void Start()
     {
-        _oldPosition = transform.position - Vector3.forward * _stepDistance;
-        _newPosition = transform.position + Vector3.forward * _stepDistance;
+        _currentPosition = _newPosition = _oldPosition = _target.position;
     }
 
     private void Update()
     {
-        UpdateNewPosition();
-        float animationProgress = CalculateAnimationProgress();
-        Animate(animationProgress);        
-    }
+        _target.position = _currentPosition;
 
-    private float CalculateAnimationProgress()
-    {
-        Vector3 direction = _newPosition - _oldPosition;
-        Vector3 targetDirection = _target.position - _oldPosition;
-        Vector3 project = Vector3.Project(targetDirection, direction);
-        return direction.Length == 0f ? 1f : project.Length / direction.Length;
+        if (UpdateNewPosition())
+        {
+            _lerp = 0f;
+        }
+        if (_lerp < 1f)
+        {
+            Vector3 footPosition = Vector3.Lerp(_oldPosition, _newPosition, _lerp);
+            footPosition.y += Mathf.Sin(_lerp * Mathf.PI) * _stepHeight;
+            _lerp = Mathf.MoveTowards(_lerp, 1f, Time.deltaTime *_speed);
+            _currentPosition = footPosition;
+        }
+        else
+        {
+            _oldPosition = _newPosition;
+        }
     }
 
     private bool UpdateNewPosition()
     {
-        Ray ray = new Ray(_rayOrigin.position, Vector3.down);
-        if (Physics.Raycast(ray, out RaycastHit hit, 10))
-        {
-            Vector3 hitDirection = hit.point - _newPosition;
-            float hitDistance = hitDirection.Length;
-            if (hitDistance > _stepDistance)
+        if (CastRayDown(_rayOrigin.position, out RaycastHit hit)) {
+            Vector3 moveDirection = hit.point - _newPosition;
+            float halfStepDistance = _stepDistance / 2f;
+            if (moveDirection.magnitude > halfStepDistance)
             {
-                _oldPosition = _newPosition;
-                _newPosition += hitDirection.normalized * (int)(hitDistance / _stepDistance);
-                return true;
+                if (CastRayDown(_rayOrigin.position + moveDirection.normalized * halfStepDistance, out hit)) {
+                    _newPosition = hit.point;
+                    return true;
+                }
             }
         }
-        return false
+        return false;
     }
 
-    private void Animate(float progress)
+    private bool CastRayDown(Vector3 origin, out RaycastHit hit)
     {
-        _target.position = Vector3.MoveTowards(_target.position, _newPosition, delta);
-    }
-
-    private void AnimateLeg(IKData leg, float progress, float angleOffset = 0f)
-    {
-        float angle = progress * 2 * Mathf.PI;
-        leg.Target.localPosition = new Vector3(
-            Mathf.Cos(angle + angleOffset) * _stepHeight,
-            leg.Target.localPosition.y,
-            Mathf.Sin(angle + angleOffset) * _stepHeight
-        );
-
-        if (leg.Target.position.y < _ground.position.y) {
-            leg.Target.position = new Vector3(leg.Target.position.x, _ground.position.y, leg.Target.position.z);
+        Ray ray = new Ray(origin, Vector3.down);
+        if (Physics.Raycast(ray, out hit, 10)) {
+            return true;
         }
-    }
-
-    private void AnimateHand(IKData hand, float progress, float angleOffset = 0f)
-    {
-        float angle = progress * 2 * Mathf.PI;
-        hand.Target.localPosition = new Vector3(
-            Mathf.Cos(angle + angleOffset) * _armSwing,
-            // Mathf.Sin(angle * (progress > 0.5 ? +1 : -1) + angleOffset) * _armSwing,
-            (Mathf.Cos((angle + angleOffset) * 2) - 1.0f) / 2 * _armSwing,
-            hand.Target.localPosition.z
-        ) + Vector3.up * 0.004f;
+        return false;
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DriweSphere(_newPosition, 0.5f);
+        Gizmos.DrawSphere(_newPosition, 0.2f);
+        Gizmos.DrawLine(_rayOrigin.position, _rayOrigin.position + Vector3.down * 10);
         Gizmos.color = Color.yellow;
-        Gizmos.DriweSphere(_oldPosition, 0.5f);
+        Gizmos.DrawSphere(_oldPosition, 0.2f);
+        // Gizmos.color = Color.green;
+        // Gizmos.DrawSphere(_target.position, 0.2f);
     }
 }
 

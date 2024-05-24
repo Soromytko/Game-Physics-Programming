@@ -58,5 +58,4 @@ public class IKData
 {
     public Transform Target;
     public Transform Pole;
-    public Transform NewTarget
 }
