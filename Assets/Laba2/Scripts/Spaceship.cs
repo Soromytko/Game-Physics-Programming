@@ -4,32 +4,47 @@ using UnityEngine;
 
 public class Spaceship : CosmicBody
 {
-    [SerializeField] private Vector3 _movementDirection;
-    [SerializeField] private float _acceleration;
+    [SerializeField] private float _initialSpeed = 0.2f;
+    [SerializeField] private float _rotationSpeed = 25f;
+    [SerializeField] private float _acceleration = 0.01f;
 
+    private Vector3 _currentMovementForce;
     private Vector3 _gravitationForce;
     private Vector3 _forceDirection;
 
+    private void Start()
+    {
+        _currentMovementForce = transform.forward;
+        _currentMovementForce *= _initialSpeed;
+    }
+
     private void FixedUpdate()
     {
-        // F = ma
-        Vector3 movementForce = _movementDirection.normalized * _mass * _acceleration; 
-        _gravitationForce = CalculateGravitationForce();
+        float horizontal = Input.GetAxis("Horizontal");
+        bool is_acceleration = Input.GetKey(KeyCode.Space);
+        
+        if (is_acceleration) {
+            _currentMovementForce += transform.forward * _acceleration;
+        }
 
-        Vector3 force = movementForce + _gravitationForce;
-        _forceDirection = force;
+        transform.Rotate(Vector3.up, horizontal * _rotationSpeed * Time.fixedDeltaTime);
+        transform.position += _currentMovementForce * Time.fixedDeltaTime;
 
-        transform.position += force * Time.fixedDeltaTime * CosmosConfig.SimulationSpeed * CosmosConfig.SimulationSpeedMultiplier;
+        ApplyGravitation();
+
+        return;
     }
 
-    private void OnDrawGizmos()
+    private void Move(Vector3 direction)
     {
-        const float lineLength = 5;
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(transform.position, transform.position + _movementDirection.normalized * lineLength);
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position + _gravitationForce.normalized * lineLength);
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(transform.position, transform.position + _forceDirection.normalized * lineLength);
+
     }
+
+    private void ApplyGravitation()
+    {
+        _gravitationForce = CalculateGravitationForce();
+        transform.position += _gravitationForce * Time.fixedDeltaTime * CosmosConfig.SimulationSpeed * CosmosConfig.SimulationSpeedMultiplier;
+    }
+
+ 
 }
