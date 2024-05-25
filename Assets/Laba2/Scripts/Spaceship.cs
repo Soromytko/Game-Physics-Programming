@@ -7,16 +7,17 @@ public class Spaceship : CosmicBody
     [SerializeField] private Vector3 _movementDirection;
     [SerializeField] private float _acceleration;
 
+    private Vector3 _gravitationForce;
     private Vector3 _forceDirection;
 
     private void FixedUpdate()
     {
         // F = ma
         Vector3 movementForce = _movementDirection.normalized * _mass * _acceleration; 
-        Vector3 gravitationForce = CalculateGravitationForce();
+        _gravitationForce = CalculateGravitationForce();
 
-        Vector3 force = movementForce + gravitationForce;
-        _forceDirection = force.normalized;
+        Vector3 force = movementForce + _gravitationForce;
+        _forceDirection = force;
 
         transform.position += force * Time.fixedDeltaTime * CosmosConfig.SimulationSpeed * CosmosConfig.SimulationSpeedMultiplier;
     }
@@ -27,6 +28,8 @@ public class Spaceship : CosmicBody
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(transform.position, transform.position + _movementDirection.normalized * lineLength);
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position + _forceDirection * lineLength);
+        Gizmos.DrawLine(transform.position, transform.position + _gravitationForce.normalized * lineLength);
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(transform.position, transform.position + _forceDirection.normalized * lineLength);
     }
 }

@@ -38,7 +38,6 @@ public class CosmicBody : MonoBehaviour
         return result;
     }
 
-    public float ssss;
     private Vector3 CalculateGravitationForce(CosmicBody body)
     {
         // Newton's law of universal gravitation: F = G * m1 * m2 / R^2
@@ -48,6 +47,7 @@ public class CosmicBody : MonoBehaviour
         decimal R = (decimal)Vector3.Distance(transform.position, body.transform.position) / (decimal)CosmosConfig.DistanceToSun * CosmosConfig.AstronomicalUnit;
         decimal F = G * m1 * m2 / (R * R);
         int FDegree = CosmosConfig.GDegree + CosmosConfig.EarthMassDegree * 2 - CosmosConfig.AstronomicalUnitDegree * 2;
+        // Subtracts 3, because we divide by the mass below
         F = F * (decimal)Math.Pow(10, FDegree - CosmosConfig.EarthMassDegree);
 
         // Newton's Second Law: F = ma     
