@@ -8,11 +8,11 @@ public class InverseIinematics : MonoBehaviour
     [SerializeField] private float _sampling = 359f;
     [SerializeField] private float _rate = 2000f;
     [SerializeField] private float _distanceThreshold = 0.01f;
+    [SerializeField] private Vector3 _armatureScale = Vector3.one;
     [SerializeField] private Transform _target;
-    [SerializeField] private Transform _fkTarget;
     [SerializeField] private Joint[] _joints;
 
-    private float[] _angles;
+    [SerializeField] private float[] _angles;
 
     private void Start()
     {
@@ -21,9 +21,22 @@ public class InverseIinematics : MonoBehaviour
 
     private void Update()
     {
+        // _joints[0].transform.localRotation *= Quaternion.Euler(Time.deltaTime * 10, 0, 0);
+        // return;
         ProcessInverseKinematic();
-        _fkTarget.position = CalculateForwardKinematicPosition();
+        ProcessInverseKinematic();
+        ProcessInverseKinematic();
         ApplyAngles();
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!UnityEditor.EditorApplication.isPlaying) {
+            return;
+        }
+        Vector3 fkTargetPosition = CalculateForwardKinematicPosition();
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(fkTargetPosition, 0.2f);
     }
 
     private void ProcessInverseKinematic()
@@ -36,7 +49,7 @@ public class InverseIinematics : MonoBehaviour
 
             // Terminate prematurely if the target is reached
             if (f <= _distanceThreshold) {
-                //return;
+                return;
             }
 
             _angles[i] += _sampling;
@@ -54,8 +67,10 @@ public class InverseIinematics : MonoBehaviour
         Quaternion rotation = Quaternion.identity;
         for (int i = 1; i < _joints.Length; i++)
         {
-            rotation *= Quaternion.AngleAxis(_angles[i - 1], _joints[i - 1].RotationAxis);
-            result += rotation * _joints[i].transform.localPosition;
+            // rotation *= Quaternion.AngleAxis(_angles[i - 1], _joints[i - 1].RotationAxis);
+            Vector3 axis = _joints[i].transform.localPosition;
+            rotation *= _joints[i - 1].CalcRotation(_angles[i - 1]);
+            result += rotation * Vector3.Scale(_joints[i].transform.localPosition, _armatureScale);
         }
         return result;
     }
@@ -68,9 +83,11 @@ public class InverseIinematics : MonoBehaviour
 
     private void ApplyAngles()
     {
-        for (int i = 0; i < _joints.Length; i++)
+        for (int i = 0; i < _joints.Length - 1; i++)
         {
             _joints[i].Angle = _angles[i];
+            // Vector3 axis = _joints[i + 1].transform.localPosition;
+            // _joints[i].ApplyAngle(_angles[i], axis);
         }
     }
 
