@@ -9,12 +9,12 @@ public class Spaceship : CosmicBody
     [SerializeField] private float _acceleration = 0.01f;
 
     [SerializeField] private Vector3 _currentMovementForce;
-    private Vector3 _gravitationForce;
-    private Vector3 _forceDirection;
+    [SerializeField] private Vector3 _gravitationForce;
+    [SerializeField] private Vector3 _velocity;
 
     private void Start()
     {
-        _currentMovementForce = transform.forward * _initialSpeed;
+        _velocity = transform.forward * _initialSpeed;
     }
 
     private void FixedUpdate()
@@ -24,22 +24,24 @@ public class Spaceship : CosmicBody
         
         transform.Rotate(Vector3.up, horizontal * _rotationSpeed * Time.fixedDeltaTime);
         
-        _currentMovementForce += transform.forward * _acceleration * (is_acceleration ? 1f : 0f);
+        _currentMovementForce = transform.forward * _acceleration * (is_acceleration ? 1f : 0f);
         _gravitationForce = CalculateGravitationForce();
         
+        float delta = Time.fixedDeltaTime * CosmosConfig.SimulationSpeed * CosmosConfig.SimulationSpeedMultiplier;
+        delta /= 10f;
         Vector3 force = _currentMovementForce + _gravitationForce;
-        ApplyForce(force);
-    }
 
-    private void ApplyForce(Vector3 force)
-    {
-        transform.position += force * Time.fixedDeltaTime * CosmosConfig.SimulationSpeed * CosmosConfig.SimulationSpeedMultiplier;
+        _velocity += force * delta;
+        transform.position += _velocity;
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(transform.position, transform.position + _currentMovementForce.normalized * 10f);
+        Gizmos.DrawLine(transform.position, transform.position + _velocity * 50f);
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(transform.position, transform.position + _gravitationForce * 5000f);
     }
 
 }
